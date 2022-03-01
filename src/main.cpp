@@ -4,7 +4,7 @@
 // Compile it with:
 //   g++ -o example-tmpfile example-tmpfile.cc -lboost_iostreams -lboost_system -lboost_filesystem
 
-#include <map>
+#include <complex>
 #include <vector>
 #include <cmath>
 
@@ -24,44 +24,75 @@ void linspace(vector<double>* X, double x_min, double x_max, int n){
 }
 
 void create_vector_from_fun(vector<double> x,vector<double>* y, R_fun f,int n){
-    for(int i= 0; i<n; i++) {
+	for(int i= 0; i<n; i++) {
 		y->push_back(f(x[i]));
 	}
 }
 
 void create_point_vector_from_vecs(vector<pair<double, double>>* vec,vector<double> x, vector<double> y,int n){
-    for(int i= 0; i<n; i++) {
+	for(int i= 0; i<n; i++) {
 		vec->push_back(make_pair(x[i], y[i]));
 	}
+}
+
+void create_point_vector_from_vecs_bis(vector<pair<double, double>>* vec,vector<double> x, vector<double> y,int n){
+	for(int i= 0; i<n; i++) {
+		if (i<n/2)
+		{
+			vec->push_back(make_pair(x[i], y[n/2+i]));
+		} else {
+			vec->push_back(make_pair(x[i], y[i-n/2]));
+		}
+	}
+}
+
+double test_fun(double x){
+	return sin(2*x*M_PI)+sin(4*M_PI*x);
 }
 
 int main() {
 	Gnuplot gp;
 
-    int n = 1024;
+	int n = 256;
 
 	vector<double> x;
 	vector<double> y;
-	vector<double> y_hat;
+	vector<complex<double>> y_hat;
 
 	vector<pair<double, double> > xy_pts;
 
 	linspace(&x, -M_PI, M_PI, n);
-	create_vector_from_fun(x,&y,&sin,n);
+	create_vector_from_fun(x,&y,&test_fun,n);
 	create_point_vector_from_vecs(&xy_pts, x, y, n);
 
-	Cooley_Tukey_hat(y, &y_hat, n);
+	fft(y, &y_hat, n);
 
-	double min_x = *min_element(x.begin(),x.end());
+	vector<double> y_hat_abs;
+	for (int i=0;i<n;i++) {
+		y_hat_abs.push_back(abs(y_hat[i]));
+	}
+
+	vector<pair<double, double>> xy_fft;
+	vector<double> x_fft;
+	linspace(&x_fft, -n/2.0, n/2.0, n);
+
+	create_point_vector_from_vecs_bis(&xy_fft, x_fft, y_hat_abs, n);
+
+	/*double min_x = *min_element(x.begin(),x.end());
 	double max_x = *max_element(x.begin(),x.end());
 	double min_y = *min_element(y.begin(),y.end());
-	double max_y = *max_element(y.begin(),y.end());
+	double max_y = *max_element(y.begin(),y.end());*/
 
-	gp << "set xrange ["<<min_x<<":"<<max_x<<"]\nset yrange ["<<min_y<<":"<<max_y<<"]\n";
+	gp << "set xrange ["<<-n/2<<":"<<n/2<<"]\nset yrange ["<<-1<<":"<<n<<"]\n";
+	//gp << "set xrange ["<<min_x<<":"<<max_x<<"]\nset yrange ["<<min_y<<":"<<max_y<<"]\n";
 	// Data will be sent via a temporary file.  These are erased when you call
 	// gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
 	// (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
 	// and won't be deleted (this is useful when creating a script).
-	gp << "plot" << gp.file1d(xy_pts) << "with lines title 'cubic'"<< endl;
+	gp << "plot" << gp.file1d(xy_pts) << "with lines title 'sine'"<< ",";
+
+	//gp << "set xrange ["<<-n/2<<":"<<n/2<<"]\nset yrange ["<<-1<<":"<<n<<"]\n";
+
+	gp << gp.file1d(xy_fft) << "with points title 'fft'" << endl;
 
 }
