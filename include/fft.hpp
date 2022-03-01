@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <complex>
-#include <cmath>
 
 /*Inspiration soursces 
 https://gist.github.com/lukicdarkoo/3f0d056e9244784f8b4a
