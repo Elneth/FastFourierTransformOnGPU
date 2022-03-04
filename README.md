@@ -12,6 +12,7 @@ If gnuplot-iostream is not installed :
 Compiling and running the cpp code :
 in root :
 > mkdir bin
+
 in src :
 > make run
 
