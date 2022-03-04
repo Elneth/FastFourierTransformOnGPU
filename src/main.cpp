@@ -50,6 +50,18 @@ double test_fun(double x){
 	return sin(2*x*M_PI)+sin(4*M_PI*x);
 }
 
+double test_fun_2(double x) {
+	if (abs(x)<0.5) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+double test_fun_3(double x) {
+	return sin(2*M_PI*x*x);
+}
+
 int main() {
 	Gnuplot gp;
 
@@ -62,7 +74,7 @@ int main() {
 	vector<pair<double, double> > xy_pts;
 
 	linspace(&x, -M_PI, M_PI, n);
-	create_vector_from_fun(x,&y,&test_fun,n);
+	create_vector_from_fun(x,&y,&test_fun_3,n);
 	create_point_vector_from_vecs(&xy_pts, x, y, n);
 
 	fft(y, &y_hat, n);
