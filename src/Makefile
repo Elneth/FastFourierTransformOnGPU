@@ -47,6 +47,12 @@ clean :
 	rm -rf *.o *.o
 	rm -f $(INSTALL_DIR)/$(EXECUTABLES)
 
+cleanpy :
+	rm fft.py
+	rm fft_wrap.cxx
+	rm *.so
+	rm -rf __pycache__
+
 
 install : $(EXECUTABLES)
 	mv $(EXECUTABLES) $(INSTALL_DIR)
