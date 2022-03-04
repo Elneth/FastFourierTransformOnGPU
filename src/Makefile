@@ -57,3 +57,7 @@ cleanpy :
 install : $(EXECUTABLES)
 	mv $(EXECUTABLES) $(INSTALL_DIR)
 	rm -rf ./*.o
+	g++ -c -fPIC fft.cpp
+	swig -c++ -python fft.i
+	g++ -c -fPIC fft_wrap.cxx -I/usr/include/python3.8
+	g++ -shared -Wl,-soname,_fft.so -o _fft.so fft.o fft_wrap.o
